@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Label, Area } from 'recharts';
-import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, MapPin, Power, DollarSign, Filter, Settings, FileText, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building } from 'lucide-react';
+import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, MapPin, Power, DollarSign, Filter, Settings, FileText, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, ArrowLeft } from 'lucide-react';
+import LandingPage from './LandingPage';
 
 // OMR Conversion Rate
 const OMR_PER_KWH = 0.025;
@@ -129,7 +130,7 @@ const initialElectricityData = parseData(rawDataString);
 const availableMonths = Object.keys(initialElectricityData[0].consumption);
 
 // Sidebar Component
-const Sidebar = ({ activeMainSection, setActiveMainSection }) => {
+const Sidebar = ({ activeMainSection, setActiveMainSection, onBackToLanding }) => {
   const mainSections = [
     { name: 'Electricity System', icon: Zap, sectionId: 'ElectricitySystem' },
     { name: 'Water Analysis', icon: Droplets, sectionId: 'WaterAnalysis' },
@@ -143,6 +144,16 @@ const Sidebar = ({ activeMainSection, setActiveMainSection }) => {
         <Power size={32} style={{ color: PRIMARY_COLOR_LIGHT }} className="animate-pulse"/> 
         <span>Muscat Bay OMS</span>
       </div>
+      
+      {/* Back to Home Button */}
+      <button
+        onClick={onBackToLanding}
+        className="w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ease-in-out group hover:bg-slate-600 text-slate-300 hover:text-white"
+      >
+        <ArrowLeft size={20} className="group-hover:scale-110 transition-transform" />
+        <span className="font-medium">Back to Home</span>
+      </button>
+
       <nav className="space-y-2">
         {mainSections.map(section => (
           <button
@@ -301,6 +312,8 @@ const AiAnalysisModal = ({ isOpen, onClose, analysisResult, isLoading }) => {
 
 // Main Application Component
 const App = () => {
+  // Navigation state - determines if we're on landing page or in a system
+  const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'system'
   const [activeMainSection, setActiveMainSection] = useState('ElectricitySystem');
   const [activeElectricitySubSection, setActiveElectricitySubSection] = useState('Dashboard');
   
@@ -375,6 +388,20 @@ const App = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return kpiAndTableData.slice(startIndex, startIndex + itemsPerPage);
   }, [kpiAndTableData, currentPage, itemsPerPage]);
+
+  // Navigation handlers
+  const handleNavigateToSystem = (systemId) => {
+    setActiveMainSection(systemId);
+    setCurrentView('system');
+  };
+
+  const handleBackToLanding = () => {
+    setCurrentView('landing');
+    // Reset any filters when going back to landing
+    setSelectedMonth("All Months");
+    setSelectedCategory("All Categories");
+    setActiveElectricitySubSection('Dashboard');
+  };
 
   // Gemini API Call Function
   const handleAiAnalysis = async () => {
@@ -568,10 +595,19 @@ const App = () => {
     }
   }
 
+  // Render landing page or system dashboard based on current view
+  if (currentView === 'landing') {
+    return <LandingPage onNavigateToSystem={handleNavigateToSystem} />;
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-100 font-inter" style={{'--selection-bg': PRIMARY_COLOR_LIGHT, '--selection-text': 'white'}}>
       <style>{`::selection { background-color: var(--selection-bg); color: var(--selection-text); }`}</style>
-      <Sidebar activeMainSection={activeMainSection} setActiveMainSection={setActiveMainSection} />
+      <Sidebar 
+        activeMainSection={activeMainSection} 
+        setActiveMainSection={setActiveMainSection}
+        onBackToLanding={handleBackToLanding}
+      />
       <div className="flex-1 flex flex-col max-h-screen overflow-y-auto">
         <Header />
         <main className={`flex-1 p-6 md:p-8 space-y-6 md:space-y-8`}>
