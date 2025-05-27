@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Label, Area } from 'recharts';
 import { Search, Bell, ChevronDown, SlidersHorizontal, Share2, LayoutDashboard, BarChart2, List, Zap, TrendingUp, Users2, MapPin, Power, DollarSign, Filter, Settings, FileText, Activity, Droplets, Combine, UserCheck, Columns, Sparkles, X, CalendarDays, Building, ArrowLeft } from 'lucide-react';
 import LandingPage from './LandingPage';
+import STPPlantWaterAnalysis from './STPPlantWaterAnalysis';
+import ContractorTracker from './ContractorTracker';
 
 // OMR Conversion Rate
 const OMR_PER_KWH = 0.025;
@@ -14,63 +16,63 @@ const PRIMARY_COLOR_DARK = '#3B3241';
 // Updated PIE_COLORS
 const PIE_COLORS = ['#6A5ACD', '#FFA07A', '#20B2AA', '#FF69B4', '#9370DB', '#F08080', '#4682B4'];
 
-const rawDataString = `SL:no.	Zone	Type 	Muscat Bay Number	Unit Number (Muncipality) 	Electrical Meter Account  No	November-24	December-24	January-25	February-25	March-25	April-25
-1	Infrastructure	MC	MC	Pumping Station 01 	R52330	1629	1640	1903	2095	3032	3940
-2	Infrastructure	MC	MC	Pumping Station 03	R52329	0	179	32.5	137.2	130.7	276.6
-3	Infrastructure	MC	MC	Pumping Station 04 	R52327	919	921	245.1	869.5	646.1	984.9
-4	Infrastructure	MC	MC	Pumping Station 05 	R52325	2599	1952	2069	2521	2601	3317
-5	Infrastructure	MC	MC	Lifting Station 02	R52328	0	0	0	0	0	0
-6	Infrastructure	MC	MC	Lifting Station 03	R52333	91	185	28	40	58	83
-7	Infrastructure	MC	MC	Lifting Station 04	R52324	686	631	701	638	572	750.22
-8	Infrastructure	MC	MC	Lifting Station 05	R52332	2413	2643	2873	3665	3069	4201.4
-9	Infrastructure	MC	MC	Irrigation Tank 01	R52324 (R52326)	1432	1268	1689	2214	1718	1663
-10	Infrastructure	MC	MC	Irrigation Tank 02	R52331	974	1026	983	1124	1110	1830
-11	Infrastructure	MC	MC	Irrigation Tank 03	R52323	269	417	840	1009	845	1205
-12	Infrastructure	MC	MC	Irrigation Tank 04	R53195	212	213	39.7	233.2	234.9	447.2
-13	Infrastructure	MC	MC	Actuator DB 01 (Z8)	R53196	34	29	7.3	27.7	24.4	27.1
-14	Infrastructure	MC	MC	Actuator DB 02	R51900	232	161	33	134	138.5	211
-15	Infrastructure	MC	MC	Actuator DB 03	R51904	220	199	55.7	203.3	196	211.6
-16	Infrastructure	MC	MC	Actuator DB 04	R51901	172	173	186	161	227	253
-17	Infrastructure	MC	MC	Actuator DB 05	R51907	18	16	4.2	17.8	14	17.7
-18	Infrastructure	MC	MC	Actuator DB 06	R51909	49	44	47	45	38	46.9
-19	Infrastructure	MC	MC	Street Light FP 01 (Z8)	R53197	3593	3147	787	3228	2663	3230
-20	Infrastructure	MC	MC	Street Light FP 02	R51906	2361	2258	633	2298	1812	2153
-21	Infrastructure	MC	MC	Street Light FP 03	R51905	2060	1966	1868	1974	1562	1847
-22	Infrastructure	MC	MC	Street Light FP 04	R51908	2299	1389	325	1406	1401	2412.9
-23	Infrastructure	MC	MC	Street Light FP 05	R51902	1477	1121	449	2069.9	1870.1	3233
-24	Infrastructure	MC	MC	Beachwell	R51903	24383	37236	38168	18422	40	27749
-25	Infrastructure	MC	MC	Helipad	R52334	0	0	0	0	0	0
-26	Central Park	MC	MC	Central Park	R54672	9604	19032	22819	19974	14190	13846
-27	Ancilary	Building	MC	Guard House	R53651	1225	814	798	936	879	1467
-28	Ancilary	Building	MC	Security Building	R53649	5702	5131	5559	5417	4504	5978
-29	Ancilary	Building	MC	ROP Building	R53648	3581	2352	2090	2246	1939	3537
-30	Zone 3	SBJ Common Meter	D 44	Apartment	R53705	1377	764	647	657	650	1306
-31	Zone 3	SBJ Common Meter	D 45	Apartment	R53665	1252	841	670	556	608	1069
-32	Zone 3	SBJ Common Meter	D 46	Apartment	R53700	1577	890	724	690	752	1292
-33	Zone 3	SBJ Common Meter	D 47	Apartment	R53690	1774	1055	887	738	792	1545
-34	Zone 3	SBJ Common Meter	D 48	Apartment	R53666	1046	785	826	676	683	1092
-35	Zone 3	SBJ Common Meter	D 49	Apartment	R53715	1608	1068	860	837	818	984
-36	Zone 3	SBJ Common Meter	D 50	Apartment	R53672	1102	789	765	785	707	1331
-37	Zone 3	SBJ Common Meter	D 51	Apartment	R53657	1855	710	661	682	642	904
-38	Zone 3	SBJ Common Meter	D 52	Apartment	R53699	1986	1208	979	896	952	1651
-39	Zone 3	SBJ Common Meter	D53	Apartment	R54782	1764	968	693	732	760	1281
-40	Zone 3	SBJ Common Meter	D54	Apartment	R54793	1777	834	681	559	531	1042
-41	Zone 3	SBJ Common Meter	D55	Apartment	R54804	1828	1035	677	616	719	1417
-42	Zone 3	SBJ Common Meter	D56	Apartment	R54815	1805	937	683	731	765	1536
-43	Zone 3	SBJ Common Meter	D57	Apartment	R54826	2262	1332	990	846	795	1732
-44	Zone 3	SBJ Common Meter	D58	Apartment	R54836	1534	778	593	535	594	1415
-45	Zone 3	SBJ Common Meter	D59	Apartment	R54847	1634	998	628	582	697	1138
-46	Zone 3	SBJ Common Meter	D60	Apartment	R54858	1275	705	674	612	679	1069
-47	Zone 3	SBJ Common Meter	D61	Apartment	R54869	1734	977	767	800	719	1394
-48	Zone 3	SBJ Common Meter	D 62	Apartment	R53717	1630	957	715	677	595	800
-49	Zone 3	SBJ Common Meter	D 74	Apartment	R53675	1303	766	639	566	463	1079
-50	Zone 3	SBJ Common Meter	D 75	Apartment	R53668	1169	702	475	508	554	912
-51		SBJ Common Meter		Village Square	R56628	6229	3695	3304	3335	3383	4415
-52	Zone 3	SBJ Common Meter	FP-17	Zone-3 landscape light	R54872	0	0	0	0	0	0
-53	Zone 3	SBJ Common Meter	FP-21	Zone-3 landscape light	R54873	40	48	12.9	56.6	46.5	55
-54	Zone 3	SBJ Common Meter	FP-22	Zone-3 landscape light	R54874	6	8	0	0	0	0
-55		SBJ Common Meter		Bank muscat	MISSING_METER	148	72	59	98	88	163
-56		SBJ Common Meter		CIF kitchen	MISSING_METER	16742	15554	16788	16154	14971	18446`.trim();
+const rawDataString = `SL:no.\tZone\tType \tMuscat Bay Number\tUnit Number (Muncipality) \tElectrical Meter Account  No\tNovember-24\tDecember-24\tJanuary-25\tFebruary-25\tMarch-25\tApril-25
+1\tInfrastructure\tMC\tMC\tPumping Station 01 \tR52330\t1629\t1640\t1903\t2095\t3032\t3940
+2\tInfrastructure\tMC\tMC\tPumping Station 03\tR52329\t0\t179\t32.5\t137.2\t130.7\t276.6
+3\tInfrastructure\tMC\tMC\tPumping Station 04 \tR52327\t919\t921\t245.1\t869.5\t646.1\t984.9
+4\tInfrastructure\tMC\tMC\tPumping Station 05 \tR52325\t2599\t1952\t2069\t2521\t2601\t3317
+5\tInfrastructure\tMC\tMC\tLifting Station 02\tR52328\t0\t0\t0\t0\t0\t0
+6\tInfrastructure\tMC\tMC\tLifting Station 03\tR52333\t91\t185\t28\t40\t58\t83
+7\tInfrastructure\tMC\tMC\tLifting Station 04\tR52324\t686\t631\t701\t638\t572\t750.22
+8\tInfrastructure\tMC\tMC\tLifting Station 05\tR52332\t2413\t2643\t2873\t3665\t3069\t4201.4
+9\tInfrastructure\tMC\tMC\tIrrigation Tank 01\tR52324 (R52326)\t1432\t1268\t1689\t2214\t1718\t1663
+10\tInfrastructure\tMC\tMC\tIrrigation Tank 02\tR52331\t974\t1026\t983\t1124\t1110\t1830
+11\tInfrastructure\tMC\tMC\tIrrigation Tank 03\tR52323\t269\t417\t840\t1009\t845\t1205
+12\tInfrastructure\tMC\tMC\tIrrigation Tank 04\tR53195\t212\t213\t39.7\t233.2\t234.9\t447.2
+13\tInfrastructure\tMC\tMC\tActuator DB 01 (Z8)\tR53196\t34\t29\t7.3\t27.7\t24.4\t27.1
+14\tInfrastructure\tMC\tMC\tActuator DB 02\tR51900\t232\t161\t33\t134\t138.5\t211
+15\tInfrastructure\tMC\tMC\tActuator DB 03\tR51904\t220\t199\t55.7\t203.3\t196\t211.6
+16\tInfrastructure\tMC\tMC\tActuator DB 04\tR51901\t172\t173\t186\t161\t227\t253
+17\tInfrastructure\tMC\tMC\tActuator DB 05\tR51907\t18\t16\t4.2\t17.8\t14\t17.7
+18\tInfrastructure\tMC\tMC\tActuator DB 06\tR51909\t49\t44\t47\t45\t38\t46.9
+19\tInfrastructure\tMC\tMC\tStreet Light FP 01 (Z8)\tR53197\t3593\t3147\t787\t3228\t2663\t3230
+20\tInfrastructure\tMC\tMC\tStreet Light FP 02\tR51906\t2361\t2258\t633\t2298\t1812\t2153
+21\tInfrastructure\tMC\tMC\tStreet Light FP 03\tR51905\t2060\t1966\t1868\t1974\t1562\t1847
+22\tInfrastructure\tMC\tMC\tStreet Light FP 04\tR51908\t2299\t1389\t325\t1406\t1401\t2412.9
+23\tInfrastructure\tMC\tMC\tStreet Light FP 05\tR51902\t1477\t1121\t449\t2069.9\t1870.1\t3233
+24\tInfrastructure\tMC\tMC\tBeachwell\tR51903\t24383\t37236\t38168\t18422\t40\t27749
+25\tInfrastructure\tMC\tMC\tHelipad\tR52334\t0\t0\t0\t0\t0\t0
+26\tCentral Park\tMC\tMC\tCentral Park\tR54672\t9604\t19032\t22819\t19974\t14190\t13846
+27\tAncilary\tBuilding\tMC\tGuard House\tR53651\t1225\t814\t798\t936\t879\t1467
+28\tAncilary\tBuilding\tMC\tSecurity Building\tR53649\t5702\t5131\t5559\t5417\t4504\t5978
+29\tAncilary\tBuilding\tMC\tROP Building\tR53648\t3581\t2352\t2090\t2246\t1939\t3537
+30\tZone 3\tSBJ Common Meter\tD 44\tApartment\tR53705\t1377\t764\t647\t657\t650\t1306
+31\tZone 3\tSBJ Common Meter\tD 45\tApartment\tR53665\t1252\t841\t670\t556\t608\t1069
+32\tZone 3\tSBJ Common Meter\tD 46\tApartment\tR53700\t1577\t890\t724\t690\t752\t1292
+33\tZone 3\tSBJ Common Meter\tD 47\tApartment\tR53690\t1774\t1055\t887\t738\t792\t1545
+34\tZone 3\tSBJ Common Meter\tD 48\tApartment\tR53666\t1046\t785\t826\t676\t683\t1092
+35\tZone 3\tSBJ Common Meter\tD 49\tApartment\tR53715\t1608\t1068\t860\t837\t818\t984
+36\tZone 3\tSBJ Common Meter\tD 50\tApartment\tR53672\t1102\t789\t765\t785\t707\t1331
+37\tZone 3\tSBJ Common Meter\tD 51\tApartment\tR53657\t1855\t710\t661\t682\t642\t904
+38\tZone 3\tSBJ Common Meter\tD 52\tApartment\tR53699\t1986\t1208\t979\t896\t952\t1651
+39\tZone 3\tSBJ Common Meter\tD53\tApartment\tR54782\t1764\t968\t693\t732\t760\t1281
+40\tZone 3\tSBJ Common Meter\tD54\tApartment\tR54793\t1777\t834\t681\t559\t531\t1042
+41\tZone 3\tSBJ Common Meter\tD55\tApartment\tR54804\t1828\t1035\t677\t616\t719\t1417
+42\tZone 3\tSBJ Common Meter\tD56\tApartment\tR54815\t1805\t937\t683\t731\t765\t1536
+43\tZone 3\tSBJ Common Meter\tD57\tApartment\tR54826\t2262\t1332\t990\t846\t795\t1732
+44\tZone 3\tSBJ Common Meter\tD58\tApartment\tR54836\t1534\t778\t593\t535\t594\t1415
+45\tZone 3\tSBJ Common Meter\tD59\tApartment\tR54847\t1634\t998\t628\t582\t697\t1138
+46\tZone 3\tSBJ Common Meter\tD60\tApartment\tR54858\t1275\t705\t674\t612\t679\t1069
+47\tZone 3\tSBJ Common Meter\tD61\tApartment\tR54869\t1734\t977\t767\t800\t719\t1394
+48\tZone 3\tSBJ Common Meter\tD 62\tApartment\tR53717\t1630\t957\t715\t677\t595\t800
+49\tZone 3\tSBJ Common Meter\tD 74\tApartment\tR53675\t1303\t766\t639\t566\t463\t1079
+50\tZone 3\tSBJ Common Meter\tD 75\tApartment\tR53668\t1169\t702\t475\t508\t554\t912
+51\t\tSBJ Common Meter\t\tVillage Square\tR56628\t6229\t3695\t3304\t3335\t3383\t4415
+52\tZone 3\tSBJ Common Meter\tFP-17\tZone-3 landscape light\tR54872\t0\t0\t0\t0\t0\t0
+53\tZone 3\tSBJ Common Meter\tFP-21\tZone-3 landscape light\tR54873\t40\t48\t12.9\t56.6\t46.5\t55
+54\tZone 3\tSBJ Common Meter\tFP-22\tZone-3 landscape light\tR54874\t6\t8\t0\t0\t0\t0
+55\t\tSBJ Common Meter\t\tBank muscat\tMISSING_METER\t148\t72\t59\t98\t88\t163
+56\t\tSBJ Common Meter\t\tCIF kitchen\tMISSING_METER\t16742\t15554\t16788\t16154\t14971\t18446`.trim();
 
 const extractCategory = (unitName) => {
     if (!unitName) return 'Other';
@@ -133,8 +135,7 @@ const availableMonths = Object.keys(initialElectricityData[0].consumption);
 const Sidebar = ({ activeMainSection, setActiveMainSection, onBackToLanding }) => {
   const mainSections = [
     { name: 'Electricity System', icon: Zap, sectionId: 'ElectricitySystem' },
-    { name: 'Water Analysis', icon: Droplets, sectionId: 'WaterAnalysis' },
-    { name: 'STP Plant', icon: Combine, sectionId: 'STPPlant' },
+    { name: 'STP & Water Analysis', icon: Combine, sectionId: 'STPWaterAnalysis' },
     { name: 'Contractor Tracker', icon: UserCheck, sectionId: 'ContractorTracker' },
   ];
 
@@ -296,12 +297,6 @@ const DonutLegend = ({ payload, data }) => {
   const totalForLegend = data.reduce((sum, entry) => sum + entry.value, 0);
   if (totalForLegend === 0) { return <div className="mt-4 text-center text-xs text-slate-500">Total is zero, percentages not applicable.</div>; }
   return ( <div className="mt-4 text-center"> <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2"> {payload.map((entry, index) => ( <li key={`item-${index}`} className="flex items-center text-xs text-slate-600"> <span style={{ backgroundColor: entry.color }} className="w-3 h-3 rounded-sm mr-2 inline-block"></span> {entry.payload.name}: {entry.payload.value.toLocaleString()} kWh ({((entry.payload.value / totalForLegend) * 100).toFixed(1)}%) </li> ))} </ul> </div> );
-};
-
-// Placeholder Page Component
-const PlaceholderPage = ({ title, icon }) => {
-    const IconComponent = icon || Activity;
-    return ( <div className="flex-1 p-8 space-y-8"> <div className="bg-white p-10 rounded-xl shadow-lg text-center"> <h2 className="text-3xl font-bold text-slate-700 mb-4">{title}</h2> <p className="text-slate-500">This section is under construction. Content for {title.toLowerCase()} will be available soon.</p> <IconComponent size={48} className="mx-auto mt-6 text-slate-400" style={{color: PRIMARY_COLOR_LIGHT}}/> </div> </div> );
 };
 
 // AI Analysis Modal
@@ -524,7 +519,14 @@ const App = () => {
                             </BarChart>
                         </ResponsiveContainer>
                     </ChartWrapper>
-                    <PlaceholderPage title="More Advanced Analytics" icon={Activity} />
+                    <div className="bg-white p-10 rounded-xl shadow-lg text-center">
+                      <Activity size={48} className="mx-auto mb-4" style={{ color: PRIMARY_COLOR_LIGHT }} />
+                      <h3 className="text-xl font-semibold text-slate-700 mb-2">More Advanced Analytics</h3>
+                      <p className="text-slate-500">
+                        Additional analytics features will be implemented here.
+                        This will include predictive analytics, trend forecasting, and comparative analysis.
+                      </p>
+                    </div>
                  </div>
             );
         case 'UnitDetails':
@@ -565,7 +567,11 @@ const App = () => {
                     ) : <p className="text-center text-slate-500">Please select a unit to view its details.</p>}
                 </div>
             );
-        default: return <PlaceholderPage title="Sub-section Not Found" />;
+        default: return <div className="bg-white p-10 rounded-xl shadow-lg text-center">
+                      <Columns size={48} className="mx-auto mb-4" style={{ color: PRIMARY_COLOR_LIGHT }} />
+                      <h3 className="text-xl font-semibold text-slate-700 mb-2">Sub-section Not Found</h3>
+                      <p className="text-slate-500">The requested subsection could not be found.</p>
+                    </div>;
     }
   };
 
@@ -588,10 +594,13 @@ const App = () => {
                     {renderElectricitySystemContent()}
                 </>
             );
-        case 'WaterAnalysis': return <PlaceholderPage title="Water Analysis Module" icon={Droplets} />;
-        case 'STPPlant': return <PlaceholderPage title="STP Plant Monitoring" icon={Combine} />;
-        case 'ContractorTracker': return <PlaceholderPage title="Contractor Tracker" icon={UserCheck} />;
-        default: return <PlaceholderPage title="Module Not Found" icon={Columns} />;
+        case 'STPWaterAnalysis': return <STPPlantWaterAnalysis />;
+        case 'ContractorTracker': return <ContractorTracker />;
+        default: return <div className="bg-white p-10 rounded-xl shadow-lg text-center">
+                      <Columns size={48} className="mx-auto mb-4" style={{ color: PRIMARY_COLOR_LIGHT }} />
+                      <h3 className="text-xl font-semibold text-slate-700 mb-2">Module Not Found</h3>
+                      <p className="text-slate-500">The requested module could not be found.</p>
+                    </div>;
     }
   }
 
